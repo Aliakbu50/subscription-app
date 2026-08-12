@@ -17,8 +17,14 @@ import { useRouter } from "next/navigation";
 import { DEFAULT_LOCALE } from "@/lib/i18n/strings";
 import { itemLabel, posStrings } from "@/lib/i18n/pos";
 import { clearHandoff, useHandoff } from "@/lib/pos/handoff";
+import { submitRedemption } from "@/lib/pos/queue";
 
-type Outcome = { firstName: string; quotaRemaining: number | null };
+type Outcome = {
+  firstName: string;
+  quotaRemaining: number | null;
+  /** Queued but not yet accepted by the server. Amber, never green. */
+  queued: boolean;
+};
 
 export default function ConfirmPage({
   params,
@@ -70,43 +76,33 @@ export default function ConfirmPage({
     setBusy(true);
     setError(null);
 
-    try {
-      const response = await fetch("/api/pos/redeem", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          memberRef: handoff.via === "qr" ? handoff.memberRef : undefined,
-          phone: handoff.via === "phone" ? handoff.phone : undefined,
-          subscriptionId: subscription.subscriptionId,
-          itemLabel: chosenItem,
-          idempotencyKey,
-          clientCreatedAt: new Date().toISOString(),
-        }),
-      });
+    // Goes to the queue, which writes it down BEFORE touching the network and
+    // then tries to send. Online it comes back "synced" in well under a
+    // second; offline it comes back "pending" and the cup is still recorded.
+    const result = await submitRedemption({
+      id: idempotencyKey,
+      memberRef: handoff.via === "qr" ? handoff.memberRef : undefined,
+      phone: handoff.via === "phone" ? handoff.phone : undefined,
+      subscriptionId: subscription.subscriptionId,
+      itemLabel: chosenItem,
+      clientCreatedAt: new Date().toISOString(),
+      memberFirstName: handoff.member.firstName,
+    });
 
-      const payload = await response.json();
-
-      if (response.status === 409 && payload.reason) {
-        // Eligibility changed between resolve and confirm — another till got
-        // there first, or a queued redemption already covers today.
-        setError(payload.reason[DEFAULT_LOCALE] ?? t.redeemFailed);
-        setBusy(false);
-        return;
-      }
-      if (!response.ok) {
-        setError(t.redeemFailed);
-        setBusy(false);
-        return;
-      }
-
-      setDone({
-        firstName: payload.member?.firstName ?? handoff.member.firstName,
-        quotaRemaining: payload.quotaRemaining ?? null,
-      });
-    } catch {
-      setError(t.redeemFailed);
+    // Refused on the merits — another till got there first, or a queued
+    // redemption already covers today. The only outcome that is an error.
+    if (result.status === "rejected") {
+      setError(result.reason?.[DEFAULT_LOCALE] ?? t.redeemFailed);
       setBusy(false);
+      return;
     }
+
+    setDone({
+      firstName: handoff.member.firstName,
+      quotaRemaining:
+        subscription.quotaRemaining === null ? null : subscription.quotaRemaining - 1,
+      queued: result.status === "pending",
+    });
   }
 
   if (handoff === undefined) return null; // reading sessionStorage
@@ -125,15 +121,24 @@ export default function ConfirmPage({
     );
   }
 
-  // ---- Success -----------------------------------------------------------
+  // ---- Success, or saved-and-waiting -------------------------------------
+  //
+  // Amber when the server has not confirmed it yet. Green must mean "the
+  // server has this"; using it for a queued item would train staff to
+  // distrust the one signal that is supposed to be unambiguous.
   if (done) {
     return (
-      <main className="flex flex-1 flex-col items-center justify-center gap-4 bg-green-600 p-6 text-white">
-        <div className="text-6xl">✓</div>
+      <main
+        className={`flex flex-1 flex-col items-center justify-center gap-4 p-6 text-white ${
+          done.queued ? "bg-amber-500" : "bg-green-600"
+        }`}
+      >
+        <div className="text-6xl">{done.queued ? "⏱" : "✓"}</div>
         <div className="text-4xl font-bold">{done.firstName}</div>
         <div className="text-2xl">
           {done.quotaRemaining === null ? t.unlimited : t.cupsLeft(done.quotaRemaining)}
         </div>
+        {done.queued && <div className="text-xl">{t.savedWillSync}</div>}
       </main>
     );
   }

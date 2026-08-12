@@ -1,34 +1,72 @@
 "use client";
 
 /**
- * Green / amber / red connection state, always visible in the POS header.
+ * Green / amber / red, always visible in the POS header.
  *
  * A barista must be able to tell at a glance whether what they are about to do
- * will reach the server. BUILD-SPEC calls a dropped café wifi "not an edge
- * case", and the worst version of it is the one nobody noticed.
+ * will reach the server, and whether anything is still owed to it. BUILD-SPEC
+ * calls a dropped café wifi "not an edge case", and the worst version of it is
+ * the one nobody noticed.
  *
- * Amber (queued items waiting) is wired up in build step 7 with the offline
- * queue. Until then this reports online/offline only, and `queued` stays 0.
+ * This component also owns draining the queue. It is mounted on every POS
+ * screen and already watching the connection, so there is no better place for
+ * "we are back online, send the backlog" to live.
  */
-import { useEffect, useState } from "react";
+import { useEffect, useSyncExternalStore } from "react";
 import { DEFAULT_LOCALE } from "@/lib/i18n/strings";
 import { posStrings } from "@/lib/i18n/pos";
+import {
+  drainQueue,
+  getPendingCount,
+  getPendingCountOnServer,
+  subscribeToQueue,
+} from "@/lib/pos/queue";
 
-export function ConnectionIndicator({ queued = 0 }: { queued?: number }) {
+/** Slow heartbeat, in case an 'online' event was missed while the app slept. */
+const SWEEP_MS = 30_000;
+
+function subscribeToConnection(onChange: () => void): () => void {
+  window.addEventListener("online", onChange);
+  window.addEventListener("offline", onChange);
+  return () => {
+    window.removeEventListener("online", onChange);
+    window.removeEventListener("offline", onChange);
+  };
+}
+
+export function ConnectionIndicator() {
   const t = posStrings(DEFAULT_LOCALE);
 
-  // Start optimistic. navigator.onLine does not exist during server rendering,
-  // and assuming offline would flash a red badge on every page load.
-  const [online, setOnline] = useState(true);
+  // Both read during render rather than set from an effect. The server
+  // snapshots are optimistic — assuming offline would flash a red badge on
+  // every page load, which is worse than a moment of wrong green.
+  const online = useSyncExternalStore(
+    subscribeToConnection,
+    () => navigator.onLine,
+    () => true,
+  );
+
+  const queued = useSyncExternalStore(
+    subscribeToQueue,
+    getPendingCount,
+    getPendingCountOnServer,
+  );
 
   useEffect(() => {
-    const update = () => setOnline(navigator.onLine);
-    update();
-    window.addEventListener("online", update);
-    window.addEventListener("offline", update);
+    // On mount: the device may have reconnected while the app was closed, in
+    // which case no 'online' event ever fired and nothing else would notice.
+    if (navigator.onLine) void drainQueue();
+
+    const onOnline = () => void drainQueue();
+    window.addEventListener("online", onOnline);
+
+    const sweep = setInterval(() => {
+      if (navigator.onLine) void drainQueue();
+    }, SWEEP_MS);
+
     return () => {
-      window.removeEventListener("online", update);
-      window.removeEventListener("offline", update);
+      window.removeEventListener("online", onOnline);
+      clearInterval(sweep);
     };
   }, []);
 
@@ -42,8 +80,8 @@ export function ConnectionIndicator({ queued = 0 }: { queued?: number }) {
 
   const label = {
     online: t.online,
-    syncing: queued > 0 ? t.queued(queued) : t.syncing,
-    offline: t.offline,
+    syncing: t.queued(queued),
+    offline: queued > 0 ? `${t.offline} · ${t.queued(queued)}` : t.offline,
   }[state];
 
   return (

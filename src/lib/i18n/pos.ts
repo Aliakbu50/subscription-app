@@ -47,6 +47,7 @@ export const pos = {
 
     // Success
     done: "تم",
+    savedWillSync: "تم الحفظ — ستتم المزامنة",
   },
   en: {
     signIn: "Sign in",
@@ -88,6 +89,7 @@ export const pos = {
 
     // Success
     done: "Done",
+    savedWillSync: "Saved — will sync",
   },
 } as const;
 
