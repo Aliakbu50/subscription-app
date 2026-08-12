@@ -49,6 +49,13 @@ export const pos = {
     done: "تم",
     savedWillSync: "تم الحفظ — ستتم المزامنة",
 
+    // Scanner
+    pointAtCode: "وجّه الكاميرا نحو رمز العميل",
+    cameraDenied: "لم يتم السماح باستخدام الكاميرا — استخدم البحث برقم الجوال",
+    cameraUnavailable: "الكاميرا غير متاحة — استخدم البحث برقم الجوال",
+    notOurCode: "هذا ليس رمز اشتراك",
+    resolving: "جارٍ التحقق…",
+
     // History
     history: "عمليات اليوم",
     noRedemptionsToday: "لا توجد عمليات اليوم",
@@ -101,6 +108,13 @@ export const pos = {
     // Success
     done: "Done",
     savedWillSync: "Saved — will sync",
+
+    // Scanner
+    pointAtCode: "Point the camera at the member's code",
+    cameraDenied: "Camera not allowed — use phone lookup instead",
+    cameraUnavailable: "Camera unavailable — use phone lookup instead",
+    notOurCode: "That is not a subscription code",
+    resolving: "Checking…",
 
     // History
     history: "Today",
