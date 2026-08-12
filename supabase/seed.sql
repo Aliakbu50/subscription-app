@@ -83,13 +83,22 @@ insert into plans (id, merchant_id, name, name_ar, description,
 -- Phone numbers are all +96650000000X so the cleanup above can find them.
 -- member_ref is left to its column default (migration 0001) — a random 22-char
 -- id, which is what the QR code will carry.
+--
+-- Names are English for readability while developing, EXCEPT فهد. Real members
+-- in Dammam will overwhelmingly have Arabic names, and the confirm screen
+-- prints the member's name in large type — the one place a script or direction
+-- bug is guaranteed to show up. Keeping one Arabic name means every run of the
+-- redemption flow exercises that path instead of us discovering it in a café.
+--
+-- `locale` is the member's UI language and is separate from the script their
+-- name happens to be written in. It stays 'ar' for all of them.
 -- ---------------------------------------------------------------------------
 insert into members (id, phone_e164, display_name, locale) values
-  ('d0000000-0000-0000-0000-000000000001', '+966500000001', 'سارة',   'ar'),
-  ('d0000000-0000-0000-0000-000000000002', '+966500000002', 'خالد',   'ar'),
-  ('d0000000-0000-0000-0000-000000000003', '+966500000003', 'نورة',   'ar'),
-  ('d0000000-0000-0000-0000-000000000004', '+966500000004', 'فهد',    'ar'),
-  ('d0000000-0000-0000-0000-000000000005', '+966500000005', 'عبدالله', 'ar');
+  ('d0000000-0000-0000-0000-000000000001', '+966500000001', 'Sara',     'ar'),
+  ('d0000000-0000-0000-0000-000000000002', '+966500000002', 'Khalid',   'ar'),
+  ('d0000000-0000-0000-0000-000000000003', '+966500000003', 'Noura',    'ar'),
+  ('d0000000-0000-0000-0000-000000000004', '+966500000004', 'فهد',      'ar'),
+  ('d0000000-0000-0000-0000-000000000005', '+966500000005', 'Abdullah', 'ar');
 
 
 -- ---------------------------------------------------------------------------
@@ -103,7 +112,7 @@ insert into subscriptions (id, member_id, plan_id, merchant_id, status,
                            starts_at, ends_at, quota_total, price_paid_halalas,
                            rules_snapshot, activation_method) values
 
-  -- (1) سارة — ACTIVE, QUOTA LEFT. The normal happy path.
+  -- (1) Sara — ACTIVE, QUOTA LEFT. The normal happy path.
   --     22 total, 5 used below, 17 remaining. Last redemption was 2 days ago,
   --     so she is eligible right now.
   ('e0000000-0000-0000-0000-000000000001',
@@ -115,7 +124,7 @@ insert into subscriptions (id, member_id, plan_id, merchant_id, status,
    '{"per_day_cap":1,"valid_from_hour":6,"valid_to_hour":23,"blackout_dates":[]}'::jsonb,
    'manual'),
 
-  -- (2) خالد — QUOTA EXHAUSTED. Subscription still active and still inside its
+  -- (2) Khalid — QUOTA EXHAUSTED. Subscription still active and still inside its
   --     date window, but all 22 cups are gone. Tests eligibility rule 3 in
   --     isolation, with nothing else also failing.
   ('e0000000-0000-0000-0000-000000000002',
@@ -127,7 +136,7 @@ insert into subscriptions (id, member_id, plan_id, merchant_id, status,
    '{"per_day_cap":1,"valid_from_hour":6,"valid_to_hour":23,"blackout_dates":[]}'::jsonb,
    'manual'),
 
-  -- (3) نورة — EXPIRED. Note status is still 'active' while ends_at is in the
+  -- (3) Noura — EXPIRED. Note status is still 'active' while ends_at is in the
   --     past. That is deliberate: it is the real state of every subscription
   --     between the moment it lapses and the moment some future job marks it
   --     expired. The redemption screen must reject her on the DATE WINDOW
@@ -154,7 +163,7 @@ insert into subscriptions (id, member_id, plan_id, merchant_id, status,
    '{"per_day_cap":1,"valid_from_hour":6,"valid_to_hour":23,"blackout_dates":[]}'::jsonb,
    'manual'),
 
-  -- (5) عبدالله — PENDING ACTIVATION. He picked a plan but has not paid the
+  -- (5) Abdullah — PENDING ACTIVATION. He picked a plan but has not paid the
   --     café yet. No dates, no quota, nothing paid. A cashier scanning him
   --     should be told to activate him, not told he is invalid.
   ('e0000000-0000-0000-0000-000000000005',
@@ -179,7 +188,7 @@ insert into subscriptions (id, member_id, plan_id, merchant_id, status,
 -- predictable. Real redemptions use a client-generated uuid v4.
 -- ---------------------------------------------------------------------------
 
--- سارة: 5 redemptions, 2 to 6 days ago. Nothing today, so she is eligible now.
+-- Sara: 5 redemptions, 2 to 6 days ago. Nothing today, so she is eligible now.
 insert into redemptions (subscription_id, member_id, merchant_id, branch_id,
                          business_day, item_label, qty, source, status,
                          idempotency_key, created_at)
@@ -194,7 +203,7 @@ select
   now() - (d || ' days')::interval
 from generate_series(2, 6) as d;
 
--- خالد: 22 redemptions on 22 consecutive days, 1 to 22 days ago. Uses the whole
+-- Khalid: 22 redemptions on 22 consecutive days, 1 to 22 days ago. Uses the whole
 -- quota. All fall inside his 25-day-old subscription window.
 insert into redemptions (subscription_id, member_id, merchant_id, branch_id,
                          business_day, item_label, qty, source, status,
@@ -210,7 +219,7 @@ select
   now() - (d || ' days')::interval
 from generate_series(1, 22) as d;
 
--- نورة: 4 redemptions from while her subscription was still valid.
+-- Noura: 4 redemptions from while her subscription was still valid.
 insert into redemptions (subscription_id, member_id, merchant_id, branch_id,
                          business_day, item_label, qty, source, status,
                          idempotency_key, created_at)
@@ -238,7 +247,7 @@ values
    business_day(now()), 'cappuccino', 1, 'qr', 'completed',
    'seed-fahad-today', now());
 
--- عبدالله: none. He has never been activated.
+-- Abdullah: none. He has never been activated.
 
 commit;
 
@@ -247,13 +256,13 @@ commit;
 -- 6. Check what you just created
 --
 -- Run this on its own afterwards. Expect exactly:
---   سارة    active    17 of 22 left   redeemable
---   خالد    active     0 of 22 left   NOT redeemable (quota gone)
---   نورة    active    18 of 22 left   NOT redeemable (dates passed)
+--   Sara    active    17 of 22 left   redeemable
+--   Khalid    active     0 of 22 left   NOT redeemable (quota gone)
+--   Noura    active    18 of 22 left   NOT redeemable (dates passed)
 --   فهد     active    21 of 22 left   redeemable by the view, but the screen
 --                                     must still refuse — the view does not
 --                                     know about the one-per-day rule
---   عبدالله pending        no quota   NOT redeemable
+--   Abdullah pending        no quota   NOT redeemable
 --
 -- That فهد row is the important one. v_subscription_status deliberately does
 -- not implement the per-day cap, so the eligibility function has to. If you
