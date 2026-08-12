@@ -73,7 +73,7 @@ insert into plans (id, merchant_id, name, name_ar, description,
    'Weekday Coffee', 'قهوة أيام العمل',
    '22 cups per month, one per day',
    17900, 30, 22,
-   '{"per_day_cap":1,"valid_from_hour":6,"valid_to_hour":23,"blackout_dates":[]}'::jsonb,
+   '{"per_day_cap":1,"valid_from_hour":6,"valid_to_hour":23,"blackout_dates":[],"eligible_items":["americano","latte","cappuccino","drip"]}'::jsonb,
    'active');
 
 
@@ -123,7 +123,7 @@ insert into subscriptions (id, member_id, plan_id, merchant_id, status,
    'a0000000-0000-0000-0000-000000000001',
    'active', now() - interval '10 days', now() + interval '20 days',
    22, 17900,
-   '{"per_day_cap":1,"valid_from_hour":6,"valid_to_hour":23,"blackout_dates":[]}'::jsonb,
+   '{"per_day_cap":1,"valid_from_hour":6,"valid_to_hour":23,"blackout_dates":[],"eligible_items":["americano","latte","cappuccino","drip"]}'::jsonb,
    'manual'),
 
   -- (2) Khalid — QUOTA EXHAUSTED. Subscription still active and still inside its
@@ -135,7 +135,7 @@ insert into subscriptions (id, member_id, plan_id, merchant_id, status,
    'a0000000-0000-0000-0000-000000000001',
    'active', now() - interval '25 days', now() + interval '5 days',
    22, 17900,
-   '{"per_day_cap":1,"valid_from_hour":6,"valid_to_hour":23,"blackout_dates":[]}'::jsonb,
+   '{"per_day_cap":1,"valid_from_hour":6,"valid_to_hour":23,"blackout_dates":[],"eligible_items":["americano","latte","cappuccino","drip"]}'::jsonb,
    'manual'),
 
   -- (3) Noura — EXPIRED. Note status is still 'active' while ends_at is in the
@@ -149,7 +149,7 @@ insert into subscriptions (id, member_id, plan_id, merchant_id, status,
    'a0000000-0000-0000-0000-000000000001',
    'active', now() - interval '40 days', now() - interval '3 days',
    22, 17900,
-   '{"per_day_cap":1,"valid_from_hour":6,"valid_to_hour":23,"blackout_dates":[]}'::jsonb,
+   '{"per_day_cap":1,"valid_from_hour":6,"valid_to_hour":23,"blackout_dates":[],"eligible_items":["americano","latte","cappuccino","drip"]}'::jsonb,
    'manual'),
 
   -- (4) Fahad — ALREADY REDEEMED TODAY. Plenty of quota left (21 of 22) and well
@@ -162,7 +162,7 @@ insert into subscriptions (id, member_id, plan_id, merchant_id, status,
    'a0000000-0000-0000-0000-000000000001',
    'active', now() - interval '5 days', now() + interval '25 days',
    22, 17900,
-   '{"per_day_cap":1,"valid_from_hour":6,"valid_to_hour":23,"blackout_dates":[]}'::jsonb,
+   '{"per_day_cap":1,"valid_from_hour":6,"valid_to_hour":23,"blackout_dates":[],"eligible_items":["americano","latte","cappuccino","drip"]}'::jsonb,
    'manual'),
 
   -- (5) Abdullah — PENDING ACTIVATION. He picked a plan but has not paid the
