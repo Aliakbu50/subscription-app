@@ -1,30 +1,71 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/* ---------------------------------------------------------------------------
+   "Paper" — the palette for every surface.
+   Off-white ground, deep green, generous air. Chosen for a pilot where ten
+   cafés means ten people who have never been trained on the app, reading it in
+   daylight with someone waiting.
 
-/* System font stack. The Arabic faces (SF Arabic on iOS/macOS, Noto Naskh
-   elsewhere) come from the OS, so no webfont download on café wifi. */
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+   Everything is a named token. Change a value here and every screen follows;
+   no screen should ever hard-code a hex or a Tailwind palette colour.
+   --------------------------------------------------------------------------- */
+@theme {
+  /* Surfaces */
+  --color-ground: #fbfbf9;   /* page background */
+  --color-surface: #ffffff;  /* header bar, raised cards */
+  --color-rule: #dcdedb;     /* borders and dividers */
+
+  /* Text */
+  --color-ink: #14161a;      /* primary */
+  --color-muted: #6b7280;    /* labels, secondary */
+
+  /* Brand — the confirm button, the selected item, the success screen */
+  --color-brand: #14614a;
+  --color-brand-strong: #0f4a38;  /* pressed */
+
+  /* State. These are SIGNALS, not decoration:
+       danger  a refusal a barista reads at arm's length
+       warn    saved locally, server has not confirmed it
+       ok      the server has it
+     Never reuse them for anything else, or they stop meaning anything. */
+  --color-danger: #a51f1f;
+  --color-warn: #b45309;
+  --color-ok: #14614a;
+
+  /* System stack. Arabic faces come from the OS — SF Arabic on iOS, Noto
+     elsewhere — so nothing downloads over café wifi. */
   --font-sans:
-    -apple-system, BlinkMacSystemFont, "SF Arabic", "Segoe UI", "Noto Naskh Arabic",
-    "Noto Sans Arabic", Tahoma, Arial, sans-serif;
+    -apple-system, BlinkMacSystemFont, "SF Arabic", "Segoe UI",
+    "Noto Naskh Arabic", "Noto Sans Arabic", Tahoma, Arial, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* The POS deliberately does NOT follow the device's dark mode.
+   Ten cafés, ten devices, mixed settings: a screen that looks different on
+   every phone makes support impossible and training worse. "Tap the green
+   button at the bottom" has to be true everywhere. */
+:root {
+  color-scheme: light;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background: var(--color-ground);
+  color: var(--color-ink);
   font-family: var(--font-sans);
+}
+
+/* Visible keyboard focus. Rare on a phone, essential on the shop tablet with
+   a keyboard attached, and free to support. */
+:focus-visible {
+  outline: 2px solid var(--color-brand);
+  outline-offset: 2px;
+}
+
+/* Stop iOS zooming the page when a cashier taps an input. The default
+   16px threshold is why POS screens jump around on iPhones. */
+input,
+button,
+select,
+textarea {
+  font-size: inherit;
 }

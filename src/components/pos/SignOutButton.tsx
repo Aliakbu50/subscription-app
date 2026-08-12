@@ -16,7 +16,7 @@ export function SignOutButton() {
   }
 
   return (
-    <button onClick={signOut} className="text-sm underline opacity-70">
+    <button onClick={signOut} className="text-sm text-muted underline">
       {t.signOut}
     </button>
   );

@@ -113,7 +113,7 @@ export default function ConfirmPage({
         <p className="text-center text-lg">{t.sessionExpired}</p>
         <button
           onClick={() => router.push("/pos")}
-          className="rounded-xl border border-black/20 dark:border-white/20 px-6 py-4 text-lg"
+          className="rounded-2xl border border-rule px-6 py-4 text-lg"
         >
           {t.back}
         </button>
@@ -130,7 +130,7 @@ export default function ConfirmPage({
     return (
       <main
         className={`flex flex-1 flex-col items-center justify-center gap-4 p-6 text-white ${
-          done.queued ? "bg-amber-500" : "bg-green-600"
+          done.queued ? "bg-warn" : "bg-brand"
         }`}
       >
         <div className="text-6xl">{done.queued ? "⏱" : "✓"}</div>
@@ -149,11 +149,11 @@ export default function ConfirmPage({
       <main className="flex flex-1 flex-col gap-6 p-6">
         <div className="text-center">
           <div className="text-4xl font-bold">{handoff.member.firstName}</div>
-          <div className="mt-1 text-sm opacity-70">{subscription.planName}</div>
+          <div className="mt-1 text-sm text-muted">{subscription.planName}</div>
         </div>
 
         {/* Large, red, plain language. Never a code. */}
-        <div className="flex flex-1 items-center justify-center rounded-3xl bg-red-600 p-6 text-center">
+        <div className="flex flex-1 items-center justify-center rounded-3xl bg-danger p-6 text-center">
           <p className="text-2xl font-semibold text-white">
             {subscription.reason?.[DEFAULT_LOCALE]}
           </p>
@@ -161,7 +161,7 @@ export default function ConfirmPage({
 
         <button
           onClick={() => router.push("/pos")}
-          className="rounded-xl border border-black/20 dark:border-white/20 py-4 text-lg"
+          className="rounded-2xl border border-rule py-4 text-lg"
         >
           {t.back}
         </button>
@@ -174,7 +174,7 @@ export default function ConfirmPage({
     <main className="flex flex-1 flex-col gap-5 p-6">
       <div className="text-center">
         <div className="text-4xl font-bold">{handoff.member.firstName}</div>
-        <div className="mt-1 text-sm opacity-70">{subscription.planName}</div>
+        <div className="mt-1 text-sm text-muted">{subscription.planName}</div>
         <div className="mt-2 text-xl">
           {subscription.quotaRemaining === null
             ? t.unlimited
@@ -184,16 +184,16 @@ export default function ConfirmPage({
 
       {items.length > 1 && (
         <div className="space-y-2">
-          <div className="text-sm opacity-70">{t.chooseItem}</div>
+          <div className="text-sm text-muted">{t.chooseItem}</div>
           <div className="grid grid-cols-2 gap-3">
             {items.map((item) => (
               <button
                 key={item}
                 onClick={() => setPickedItem(item)}
-                className={`rounded-xl border py-4 text-lg ${
+                className={`rounded-2xl border py-4 text-lg ${
                   chosenItem === item
-                    ? "border-green-600 bg-green-600 text-white"
-                    : "border-black/20 dark:border-white/20"
+                    ? "border-brand bg-brand text-white"
+                    : "border-rule"
                 }`}
               >
                 {itemLabel(item, DEFAULT_LOCALE)}
@@ -204,7 +204,7 @@ export default function ConfirmPage({
       )}
 
       {error && (
-        <p role="alert" className="text-center text-red-600">
+        <p role="alert" className="text-center text-danger">
           {error}
         </p>
       )}
@@ -212,7 +212,7 @@ export default function ConfirmPage({
       <button
         onClick={confirm}
         disabled={busy || (items.length > 0 && !chosenItem)}
-        className="flex flex-1 items-center justify-center rounded-3xl bg-green-600 text-3xl font-bold text-white disabled:opacity-40"
+        className="flex flex-1 items-center justify-center rounded-3xl bg-brand text-3xl font-bold text-white disabled:opacity-40"
       >
         {busy ? t.confirming : t.confirm}
       </button>

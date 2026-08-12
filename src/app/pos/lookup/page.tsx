@@ -73,18 +73,18 @@ export default function LookupPage() {
 
   return (
     <main className="flex flex-1 flex-col gap-4 p-4">
-      <label className="text-sm opacity-70">{t.enterPhone}</label>
+      <label className="text-sm text-muted">{t.enterPhone}</label>
 
       {/* dir=ltr: a phone number reads left-to-right even in an RTL layout. */}
       <div
         dir="ltr"
-        className="rounded-xl border border-black/20 dark:border-white/20 px-4 py-4 text-center text-3xl font-semibold tabular-nums tracking-widest"
+        className="rounded-2xl border border-rule bg-surface px-4 py-4 text-center text-3xl font-semibold tabular-nums tracking-widest"
       >
         {digits || " "}
       </div>
 
       {error && (
-        <p role="alert" className="text-center text-red-600">
+        <p role="alert" className="text-center text-danger">
           {error}
         </p>
       )}
@@ -99,7 +99,7 @@ export default function LookupPage() {
                   setDigits("");
                   setError(null);
                 }}
-                className="rounded-xl border border-black/20 dark:border-white/20 py-5 text-lg"
+                className="rounded-2xl border border-rule bg-surface py-5 text-lg"
               >
                 {t.clear}
               </button>
@@ -110,7 +110,7 @@ export default function LookupPage() {
               <button
                 key={key}
                 onClick={() => setDigits((d) => d.slice(0, -1))}
-                className="rounded-xl border border-black/20 dark:border-white/20 py-5 text-2xl"
+                className="rounded-2xl border border-rule bg-surface py-5 text-2xl"
                 aria-label={t.back}
               >
                 ⌫
@@ -121,7 +121,7 @@ export default function LookupPage() {
             <button
               key={key}
               onClick={() => push(key)}
-              className="rounded-xl border border-black/20 dark:border-white/20 py-5 text-2xl font-semibold tabular-nums"
+              className="rounded-2xl border border-rule bg-surface py-5 text-2xl font-semibold tabular-nums"
             >
               {key}
             </button>
@@ -132,7 +132,7 @@ export default function LookupPage() {
       <button
         onClick={search}
         disabled={!canSearch || busy}
-        className="rounded-xl bg-green-600 py-5 text-xl font-bold text-white disabled:opacity-40"
+        className="rounded-2xl bg-brand py-5 text-xl font-bold text-white disabled:opacity-40"
       >
         {busy ? t.searching : t.find}
       </button>

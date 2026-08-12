@@ -82,7 +82,7 @@ export function HistoryList({ rows }: { rows: HistoryRow[] }) {
   return (
     <>
       {error && (
-        <p role="alert" className="text-red-600">
+        <p role="alert" className="text-danger">
           {error}
         </p>
       )}
@@ -90,15 +90,15 @@ export function HistoryList({ rows }: { rows: HistoryRow[] }) {
       {queued.map((item) => (
         <div
           key={item.id}
-          className={`rounded-xl border p-4 ${
+          className={`rounded-2xl border p-4 ${
             item.status === "rejected"
-              ? "border-red-500 bg-red-500/10"
-              : "border-amber-500 bg-amber-500/10"
+              ? "border-danger bg-danger/10"
+              : "border-warn bg-warn/10"
           }`}
         >
           <div className="flex items-baseline justify-between">
             <span className="text-lg font-semibold">{item.memberFirstName}</span>
-            <span className="text-sm opacity-70">
+            <span className="text-sm text-muted">
               {timeOfDay(item.clientCreatedAt)}
             </span>
           </div>
@@ -111,7 +111,7 @@ export function HistoryList({ rows }: { rows: HistoryRow[] }) {
       ))}
 
       {rows.length === 0 && queued.length === 0 && (
-        <p className="opacity-60">{t.noRedemptionsToday}</p>
+        <p className="text-muted">{t.noRedemptionsToday}</p>
       )}
 
       {rows.map((row) => {
@@ -124,7 +124,7 @@ export function HistoryList({ rows }: { rows: HistoryRow[] }) {
         return (
           <div
             key={row.id}
-            className={`rounded-xl border border-black/15 dark:border-white/15 p-4 ${
+            className={`rounded-2xl border border-rule p-4 ${
               row.voided ? "opacity-50" : ""
             }`}
           >
@@ -132,22 +132,22 @@ export function HistoryList({ rows }: { rows: HistoryRow[] }) {
               <span className="text-lg">
                 {row.itemLabel ? itemLabel(row.itemLabel, DEFAULT_LOCALE) : "—"}
               </span>
-              <span className="text-sm opacity-70">{timeOfDay(row.createdAt)}</span>
+              <span className="text-sm text-muted">{timeOfDay(row.createdAt)}</span>
             </div>
 
             {row.voided ? (
-              <div className="mt-2 text-sm font-semibold text-red-600">
+              <div className="mt-2 text-sm font-semibold text-danger">
                 {t.voided}
               </div>
             ) : check.allowed ? (
               <div className="mt-3 flex items-center justify-between gap-3">
-                <span className="text-xs opacity-60">
+                <span className="text-xs text-muted">
                   {t.voidWindow(voidMinutesRemaining(createdAt, now))}
                 </span>
                 <button
                   onClick={() => voidRedemption(row.id)}
                   disabled={voidingId === row.id}
-                  className="rounded-lg border border-red-500 px-4 py-2 text-sm text-red-600 disabled:opacity-40"
+                  className="rounded-lg border border-danger px-4 py-2 text-sm text-danger disabled:opacity-40"
                 >
                   {voidingId === row.id ? t.voiding : t.voidAction}
                 </button>

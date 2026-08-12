@@ -39,30 +39,33 @@ export default async function PosHome() {
     .eq("status", "completed");
 
   return (
-    <main className="flex flex-1 flex-col gap-6 p-6">
-      <div className="text-center">
-        <div className="text-5xl font-bold tabular-nums">{count ?? 0}</div>
-        <div className="text-sm opacity-70">{t.redemptionsToday}</div>
+    <main className="flex flex-1 flex-col gap-5 p-5">
+      <div className="pt-2 text-center">
+        <div className="text-6xl font-bold tabular-nums leading-none">{count ?? 0}</div>
+        <div className="mt-2 text-xs uppercase tracking-widest text-muted">
+          {t.redemptionsToday}
+        </div>
       </div>
 
-      {/* The most important control in the product. Deliberately enormous. */}
+      {/* The most important control in the product. Deliberately enormous —
+          it should be findable by thumb without looking. */}
       <Link
         href="/pos/scan"
-        className="flex flex-1 items-center justify-center rounded-3xl bg-green-600 text-3xl font-bold text-white"
+        className="flex flex-1 items-center justify-center rounded-3xl bg-brand text-3xl font-bold text-white active:bg-brand-strong"
       >
         {t.scan}
       </Link>
 
       <Link
         href="/pos/lookup"
-        className="rounded-xl border border-black/20 dark:border-white/20 px-4 py-4 text-center text-lg"
+        className="rounded-2xl border border-rule bg-surface px-4 py-4 text-center text-lg"
       >
         {t.lookupByPhone}
       </Link>
 
       <Link
         href="/pos/history"
-        className="rounded-xl border border-black/20 dark:border-white/20 px-4 py-3 text-center"
+        className="rounded-2xl px-4 py-3 text-center text-muted"
       >
         {t.history}
       </Link>

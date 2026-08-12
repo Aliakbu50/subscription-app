@@ -162,7 +162,7 @@ export default function ScanPage() {
         </p>
         <Link
           href="/pos/lookup"
-          className="rounded-xl bg-green-600 px-6 py-4 text-lg font-semibold text-white"
+          className="rounded-2xl bg-brand px-6 py-4 text-lg font-semibold text-white"
         >
           {t.lookupByPhone}
         </Link>

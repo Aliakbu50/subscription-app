@@ -73,9 +73,9 @@ export function ConnectionIndicator() {
   const state = !online ? "offline" : queued > 0 ? "syncing" : "online";
 
   const dot = {
-    online: "bg-green-500",
-    syncing: "bg-amber-500",
-    offline: "bg-red-500",
+    online: "bg-ok",
+    syncing: "bg-warn",
+    offline: "bg-danger",
   }[state];
 
   const label = {
@@ -87,7 +87,7 @@ export function ConnectionIndicator() {
   return (
     <div className="flex items-center gap-2 text-sm" aria-live="polite">
       <span className={`inline-block h-2.5 w-2.5 rounded-full ${dot}`} aria-hidden />
-      <span className="opacity-80">{label}</span>
+      <span className="text-muted">{label}</span>
     </div>
   );
 }

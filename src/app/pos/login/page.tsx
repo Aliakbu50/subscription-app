@@ -63,7 +63,7 @@ export default function LoginPage() {
         <h1 className="text-2xl font-semibold">{t.signIn}</h1>
 
         <div className="space-y-2">
-          <label htmlFor="email" className="block text-sm opacity-70">
+          <label htmlFor="email" className="block text-sm text-muted">
             {t.email}
           </label>
           <input
@@ -75,12 +75,12 @@ export default function LoginPage() {
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full rounded-xl border border-black/20 dark:border-white/20 bg-transparent px-4 py-3 text-lg"
+            className="w-full rounded-2xl border border-rule bg-surface px-4 py-3 text-lg"
           />
         </div>
 
         <div className="space-y-2">
-          <label htmlFor="password" className="block text-sm opacity-70">
+          <label htmlFor="password" className="block text-sm text-muted">
             {t.password}
           </label>
           <input
@@ -91,12 +91,12 @@ export default function LoginPage() {
             required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full rounded-xl border border-black/20 dark:border-white/20 bg-transparent px-4 py-3 text-lg"
+            className="w-full rounded-2xl border border-rule bg-surface px-4 py-3 text-lg"
           />
         </div>
 
         {failed && (
-          <p role="alert" className="text-sm text-red-600">
+          <p role="alert" className="text-sm text-danger">
             {t.signInFailed}
           </p>
         )}
@@ -105,7 +105,7 @@ export default function LoginPage() {
             the only person who ever sees it is whoever is setting the app up,
             and a real message beats "something went wrong". */}
         {crashed && (
-          <p role="alert" className="text-sm text-red-600" dir="ltr">
+          <p role="alert" className="text-sm text-danger" dir="ltr">
             {crashed}
           </p>
         )}
@@ -114,7 +114,7 @@ export default function LoginPage() {
         <button
           type="submit"
           disabled={busy}
-          className="w-full rounded-xl bg-green-600 px-4 py-4 text-lg font-semibold text-white disabled:opacity-60"
+          className="w-full rounded-2xl bg-brand px-4 py-4 text-lg font-semibold text-white disabled:opacity-60"
         >
           {busy ? t.signingIn : t.signIn}
         </button>
