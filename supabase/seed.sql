@@ -84,11 +84,13 @@ insert into plans (id, merchant_id, name, name_ar, description,
 -- member_ref is left to its column default (migration 0001) — a random 22-char
 -- id, which is what the QR code will carry.
 --
--- Names are English for readability while developing, EXCEPT فهد. Real members
--- in Dammam will overwhelmingly have Arabic names, and the confirm screen
--- prints the member's name in large type — the one place a script or direction
--- bug is guaranteed to show up. Keeping one Arabic name means every run of the
--- redemption flow exercises that path instead of us discovering it in a café.
+-- Names are English, by preference, for readability while developing.
+--
+-- CONSEQUENCE TO REMEMBER: no seed member has an Arabic name, so simply using
+-- this data never exercises RTL rendering of the member's name. The confirm
+-- screen prints that name in large type and real members in Dammam will mostly
+-- have Arabic ones, so that path must be tested DELIBERATELY — with an explicit
+-- Arabic-name case in the test suite, not by hoping it comes up.
 --
 -- `locale` is the member's UI language and is separate from the script their
 -- name happens to be written in. It stays 'ar' for all of them.
@@ -97,7 +99,7 @@ insert into members (id, phone_e164, display_name, locale) values
   ('d0000000-0000-0000-0000-000000000001', '+966500000001', 'Sara',     'ar'),
   ('d0000000-0000-0000-0000-000000000002', '+966500000002', 'Khalid',   'ar'),
   ('d0000000-0000-0000-0000-000000000003', '+966500000003', 'Noura',    'ar'),
-  ('d0000000-0000-0000-0000-000000000004', '+966500000004', 'فهد',      'ar'),
+  ('d0000000-0000-0000-0000-000000000004', '+966500000004', 'Fahad',    'ar'),
   ('d0000000-0000-0000-0000-000000000005', '+966500000005', 'Abdullah', 'ar');
 
 
@@ -150,7 +152,7 @@ insert into subscriptions (id, member_id, plan_id, merchant_id, status,
    '{"per_day_cap":1,"valid_from_hour":6,"valid_to_hour":23,"blackout_dates":[]}'::jsonb,
    'manual'),
 
-  -- (4) فهد — ALREADY REDEEMED TODAY. Plenty of quota left (21 of 22) and well
+  -- (4) Fahad — ALREADY REDEEMED TODAY. Plenty of quota left (21 of 22) and well
   --     inside his dates. The ONLY thing stopping him is the one-per-day cap.
   --     This is the most common real rejection at a counter, so its message
   --     matters most: "next cup tomorrow", never an error code.
@@ -234,7 +236,7 @@ select
   now() - (d || ' days')::interval
 from generate_series(10, 13) as d;
 
--- فهد: exactly one redemption, TODAY. created_at and business_day are both
+-- Fahad: exactly one redemption, TODAY. created_at and business_day are both
 -- taken from the same now() so they can never disagree across the 04:00 rollover.
 insert into redemptions (subscription_id, member_id, merchant_id, branch_id,
                          business_day, item_label, qty, source, status,
@@ -259,12 +261,12 @@ commit;
 --   Sara    active    17 of 22 left   redeemable
 --   Khalid    active     0 of 22 left   NOT redeemable (quota gone)
 --   Noura    active    18 of 22 left   NOT redeemable (dates passed)
---   فهد     active    21 of 22 left   redeemable by the view, but the screen
+--   Fahad     active    21 of 22 left   redeemable by the view, but the screen
 --                                     must still refuse — the view does not
 --                                     know about the one-per-day rule
 --   Abdullah pending        no quota   NOT redeemable
 --
--- That فهد row is the important one. v_subscription_status deliberately does
+-- That Fahad row is the important one. v_subscription_status deliberately does
 -- not implement the per-day cap, so the eligibility function has to. If you
 -- ever see the app trusting is_redeemable on its own, that is the bug.
 -- ---------------------------------------------------------------------------
