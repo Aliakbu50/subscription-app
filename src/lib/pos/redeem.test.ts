@@ -92,12 +92,12 @@ describe("isValidIdempotencyKey", () => {
   });
 
   it.each([
-    ["", "empty"],
-    ["seed-fahad-today", "not a uuid"],
-    ["3f2504e0-4f89-41d3-9a0c", "truncated"],
-    [null, "null"],
-    [42, "not a string"],
-  ])("rejects %s — %s", (key, _why) => {
+    { why: "empty", key: "" },
+    { why: "not a uuid", key: "seed-fahad-today" },
+    { why: "truncated", key: "3f2504e0-4f89-41d3-9a0c" },
+    { why: "null", key: null },
+    { why: "not a string", key: 42 },
+  ])("rejects $why", ({ key }) => {
     expect(isValidIdempotencyKey(key)).toBe(false);
   });
 });
