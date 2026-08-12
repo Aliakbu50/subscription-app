@@ -40,7 +40,7 @@ delete from merchants     where id          = 'a0000000-0000-0000-0000-000000000
 -- ---------------------------------------------------------------------------
 insert into merchants (id, name, name_ar, status) values
   ('a0000000-0000-0000-0000-000000000001',
-   'Sharq Coffee', 'قهوة الشرق', 'active');
+   'Lunar Cafe', 'مقهى القمر', 'active');
 
 insert into branches (id, merchant_id, name, name_ar, address, latitude, longitude, status) values
   ('b0000000-0000-0000-0000-000000000001',
