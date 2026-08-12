@@ -20,26 +20,39 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [failed, setFailed] = useState(false);
+  const [crashed, setCrashed] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
   async function onSubmit(event: React.FormEvent) {
     event.preventDefault();
     setBusy(true);
     setFailed(false);
+    setCrashed(null);
 
-    const supabase = createClient();
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    try {
+      const supabase = createClient();
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
 
-    if (error) {
-      // Deliberately one message for both wrong-email and wrong-password.
-      // Telling an attacker which half they got right is free information.
-      setFailed(true);
+      if (error) {
+        // Deliberately one message for both wrong-email and wrong-password.
+        // Telling an attacker which half they got right is free information.
+        setFailed(true);
+        setBusy(false);
+        return;
+      }
+    } catch (err) {
+      // Anything that is NOT a rejected credential: misconfiguration, network,
+      // a client that could not be constructed. Without this the promise
+      // rejects unhandled, setBusy(false) never runs, and the button sits on
+      // "signing in…" forever — which looks identical to a slow connection and
+      // tells whoever is holding the phone nothing at all.
+      setCrashed(err instanceof Error ? err.message : String(err));
       setBusy(false);
       return;
     }
 
-    // refresh() re-runs the middleware so the new session cookie is picked up
-    // before we navigate, otherwise /pos bounces straight back here.
+    // refresh() re-runs the proxy so the new session cookie is picked up before
+    // we navigate, otherwise /pos bounces straight back here.
     router.refresh();
     router.push("/pos");
   }
@@ -85,6 +98,15 @@ export default function LoginPage() {
         {failed && (
           <p role="alert" className="text-sm text-red-600">
             {t.signInFailed}
+          </p>
+        )}
+
+        {/* Not a wrong password — something is broken. Shown verbatim because
+            the only person who ever sees it is whoever is setting the app up,
+            and a real message beats "something went wrong". */}
+        {crashed && (
+          <p role="alert" className="text-sm text-red-600" dir="ltr">
+            {crashed}
           </p>
         )}
 
