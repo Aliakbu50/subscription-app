@@ -58,6 +58,29 @@ describe("businessDay", () => {
       expect(businessDay(at)).toBe(viaDatabaseFormula);
     }
   });
+
+  /**
+   * The test above checks this file against our own reading of the SQL. These
+   * values came out of the REAL database, by running:
+   *
+   *   select ts, business_day(ts) from (values
+   *     ('2026-08-12T01:00:00Z'::timestamptz), ...
+   *   ) as t(ts);
+   *
+   * Confirmed 2026-08-12. If one of these ever fails, businessDay() and
+   * business_day() have drifted apart and quota is being charged to the wrong
+   * day — which shows up as a member wrongly refused a coffee they are owed,
+   * long after anyone would connect it to a timezone change.
+   */
+  it.each([
+    ["2026-08-12T01:00:00Z", "2026-08-12"], // 04:00 Riyadh — first minute of the new café day
+    ["2026-08-12T00:59:00Z", "2026-08-11"], // 03:59 Riyadh — one minute earlier, previous day
+    ["2026-08-11T22:30:00Z", "2026-08-11"], // 01:30 Riyadh — the case CLAUDE.md names
+    ["2026-08-11T20:30:00Z", "2026-08-11"], // 23:30 Riyadh — same café night as the row above
+    ["2026-08-31T23:00:00Z", "2026-08-31"], // 02:00 Riyadh on 1 Sep — still August's business day
+  ])("agrees with the real database: %s -> %s", (instant, expected) => {
+    expect(businessDay(new Date(instant))).toBe(expected);
+  });
 });
 
 describe("riyadhHour", () => {
