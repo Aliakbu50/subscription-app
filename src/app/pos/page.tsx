@@ -59,6 +59,13 @@ export default async function PosHome() {
       >
         {t.lookupByPhone}
       </Link>
+
+      <Link
+        href="/pos/history"
+        className="rounded-xl border border-black/20 dark:border-white/20 px-4 py-3 text-center"
+      >
+        {t.history}
+      </Link>
     </main>
   );
 }

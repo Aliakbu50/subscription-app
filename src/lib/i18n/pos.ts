@@ -48,6 +48,17 @@ export const pos = {
     // Success
     done: "تم",
     savedWillSync: "تم الحفظ — ستتم المزامنة",
+
+    // History
+    history: "عمليات اليوم",
+    noRedemptionsToday: "لا توجد عمليات اليوم",
+    voidAction: "إلغاء",
+    voiding: "جارٍ الإلغاء…",
+    voided: "ملغاة",
+    voidWindow: (m: number) => `${m} دقيقة متبقية للإلغاء`,
+    voidFailed: "تعذّر الإلغاء",
+    waitingToSync: "بانتظار المزامنة",
+    syncRejected: "لم تُقبل — يحتاج مراجعة",
   },
   en: {
     signIn: "Sign in",
@@ -90,6 +101,17 @@ export const pos = {
     // Success
     done: "Done",
     savedWillSync: "Saved — will sync",
+
+    // History
+    history: "Today",
+    noRedemptionsToday: "No redemptions today",
+    voidAction: "Void",
+    voiding: "Voiding…",
+    voided: "Voided",
+    voidWindow: (m: number) => `${m} min left to void`,
+    voidFailed: "Could not void",
+    waitingToSync: "Waiting to sync",
+    syncRejected: "Not accepted — needs review",
   },
 } as const;
 

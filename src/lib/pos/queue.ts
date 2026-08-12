@@ -105,6 +105,14 @@ const listeners = new Set<() => void>();
  */
 let pendingCount = 0;
 
+/**
+ * A synchronous mirror of the queue's contents, for the same reason.
+ * Must be a STABLE reference between changes — useSyncExternalStore compares
+ * snapshots by identity, and a fresh array every read is an infinite loop.
+ */
+const NO_ITEMS: QueuedRedemption[] = [];
+let cachedItems: QueuedRedemption[] = NO_ITEMS;
+
 export function getPendingCount(): number {
   return pendingCount;
 }
@@ -112,6 +120,15 @@ export function getPendingCount(): number {
 /** Server render has no IndexedDB, and must return a stable value. */
 export function getPendingCountOnServer(): number {
   return 0;
+}
+
+/** Everything not yet accepted by the server: waiting, or refused. */
+export function getUnsyncedItems(): QueuedRedemption[] {
+  return cachedItems;
+}
+
+export function getUnsyncedItemsOnServer(): QueuedRedemption[] {
+  return NO_ITEMS;
 }
 
 export function subscribeToQueue(listener: () => void): () => void {
@@ -126,9 +143,21 @@ export function subscribeToQueue(listener: () => void): () => void {
 
 async function refreshPendingCount(): Promise<void> {
   try {
-    const next = (await pendingItems()).length;
-    if (next !== pendingCount) {
-      pendingCount = next;
+    const items = await allItems();
+    const unsynced = items.filter((i) => i.status !== "synced");
+    const nextCount = items.filter((i) => i.status === "pending").length;
+
+    // Only swap the cached array when something actually changed, so the
+    // snapshot identity stays stable for useSyncExternalStore.
+    const changed =
+      nextCount !== pendingCount ||
+      unsynced.length !== cachedItems.length ||
+      unsynced.some((item, i) => item.id !== cachedItems[i]?.id ||
+        item.status !== cachedItems[i]?.status);
+
+    if (changed) {
+      pendingCount = nextCount;
+      cachedItems = unsynced.length === 0 ? NO_ITEMS : unsynced;
       for (const listener of listeners) listener();
     }
   } catch {
@@ -139,7 +168,6 @@ async function refreshPendingCount(): Promise<void> {
 
 function notify() {
   void refreshPendingCount();
-  for (const listener of listeners) listener();
 }
 
 /** Send one item. Returns whether it left the queue, either way. */
