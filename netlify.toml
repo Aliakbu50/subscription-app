@@ -1,0 +1,18 @@
+# Netlify build configuration.
+#
+# Keeping this in the repo rather than in the Netlify UI means the build is
+# reproducible and reviewable. If a deploy breaks, the cause is in a commit.
+
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  # Next 16 needs a modern Node. Netlify's default has been older than this
+  # in the past, and the failure looks like a confusing syntax error rather
+  # than "your Node is too old".
+  NODE_VERSION = "22"
+
+# The Next.js runtime plugin is installed by Netlify automatically for Next
+# projects. It is what makes the proxy (session refresh) and server components
+# work — without it you get a static export that cannot talk to Supabase.
