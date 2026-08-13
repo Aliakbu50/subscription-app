@@ -155,6 +155,11 @@ export default function ConfirmPage({
             <button
               onClick={() => {
                 clearHandoff(token);
+                // Deliberately NOT router.push, which is what the lint rule
+                // wants: a client navigation fetches from the server and is
+                // exactly what crashes with no connection. A full load lets
+                // the browser show its own offline page instead.
+                // eslint-disable-next-line @next/next/no-location-assign-relative-destination
                 window.location.href = "/pos";
               }}
               className="mt-4 border border-white px-8 py-4 text-lg font-semibold"
