@@ -62,8 +62,14 @@ export default function ConfirmPage({
 
   // Success auto-returns, so the next customer meets a ready screen rather
   // than the last person's name.
+  //
+  // NOT when the redemption was queued offline. Navigating fetches data from
+  // the server, which with no connection fails and takes the page down —
+  // three seconds after a screen that told the cashier everything was fine.
+  // Staying put keeps the amber confirmation on screen, which is the more
+  // useful thing to be looking at anyway while there is no signal.
   useEffect(() => {
-    if (!done) return;
+    if (!done || done.queued) return;
     const timer = setTimeout(() => {
       clearHandoff(token);
       router.push("/pos");
@@ -134,11 +140,29 @@ export default function ConfirmPage({
         }`}
       >
         <div className="text-6xl">{done.queued ? "⏱" : "✓"}</div>
-        <div className="text-4xl font-bold">{done.firstName}</div>
+        <div className="display text-5xl">{done.firstName}</div>
         <div className="text-2xl">
           {done.quotaRemaining === null ? t.unlimited : t.cupsLeft(done.quotaRemaining)}
         </div>
-        {done.queued && <div className="text-xl">{t.savedWillSync}</div>}
+
+        {/* Queued: no auto-return, because navigating needs the network. The
+            cashier taps this when signal is back. A full page load rather than
+            a client navigation, so the browser shows its own offline page if
+            it is still down instead of the app failing in a confusing way. */}
+        {done.queued && (
+          <>
+            <div className="text-xl">{t.savedWillSync}</div>
+            <button
+              onClick={() => {
+                clearHandoff(token);
+                window.location.href = "/pos";
+              }}
+              className="mt-4 border border-white px-8 py-4 text-lg font-semibold"
+            >
+              {t.back}
+            </button>
+          </>
+        )}
       </main>
     );
   }
