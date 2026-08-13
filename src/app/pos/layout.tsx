@@ -1,4 +1,5 @@
 import { ConnectionIndicator } from "@/components/pos/ConnectionIndicator";
+import { ServiceWorkerRegistrar } from "@/components/pos/ServiceWorkerRegistrar";
 import { SignOutButton } from "@/components/pos/SignOutButton";
 import { getStaffContext } from "@/lib/pos/session";
 
@@ -14,6 +15,9 @@ export default async function PosLayout({ children }: LayoutProps<"/pos">) {
 
   return (
     <div className="flex min-h-full flex-col">
+      {/* Registers on every POS page so it is installed before sign-in
+          finishes; only warms the cache once there is a session. */}
+      <ServiceWorkerRegistrar warm={Boolean(staff)} />
       {staff && (
         <header className="flex items-center justify-between border-b border-rule bg-surface px-4 py-3">
           <span className="font-semibold">{staff.displayName}</span>

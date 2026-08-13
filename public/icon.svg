@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Navy ground and a crescent, for Lunar. Square, like everything else. -->
+  <rect width="512" height="512" fill="#2b3268"/>
+  <path
+    d="M330 116a150 150 0 1 0 0 280 172 172 0 0 1 0-280z"
+    fill="#f6d2ce"/>
+</svg>

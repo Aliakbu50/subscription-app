@@ -1,0 +1,18 @@
+{
+  "name": "Lunar Cafe — نظام الاشتراكات",
+  "short_name": "الاشتراكات",
+  "description": "شاشة الكاشير لاسترداد الاشتراكات",
+  "lang": "ar",
+  "dir": "rtl",
+  "start_url": "/pos",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f6d2ce",
+  "theme_color": "#2b3268",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

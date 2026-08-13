@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { DEFAULT_LOCALE, t } from "@/lib/i18n/strings";
 
@@ -8,6 +8,23 @@ import { DEFAULT_LOCALE, t } from "@/lib/i18n/strings";
 
 export const metadata: Metadata = {
   title: t(DEFAULT_LOCALE).appName,
+  manifest: "/manifest.webmanifest",
+  // Added to a home screen, iOS uses these rather than the manifest.
+  appleWebApp: {
+    capable: true,
+    title: t(DEFAULT_LOCALE).appName,
+    statusBarStyle: "default",
+  },
+};
+
+export const viewport: Viewport = {
+  // The phone's status bar picks this up, so a device with the app on its
+  // home screen looks like one thing rather than a website in a frame.
+  themeColor: "#2b3268",
+  // A cashier must not be able to pinch-zoom the till screen by accident and
+  // then wonder why the confirm button has moved.
+  maximumScale: 1,
+  userScalable: false,
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
