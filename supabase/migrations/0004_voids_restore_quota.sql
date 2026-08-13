@@ -30,9 +30,11 @@ create index if not exists redemptions_voids_redemption_id_idx
 -- ---------------------------------------------------------------------------
 -- 1. The view. Same columns as before — only what counts as "used" changes.
 -- ---------------------------------------------------------------------------
+-- The lateral is aliased `agg` and the table inside it `red`. An earlier
+-- version used `r` for both, which is ambiguous and did not apply cleanly.
 create or replace view v_subscription_status as
 select
-  s.id                as subscription_id,
+  s.id                  as subscription_id,
   s.member_id,
   s.merchant_id,
   s.plan_id,
@@ -40,26 +42,26 @@ select
   s.starts_at,
   s.ends_at,
   s.quota_total,
-  coalesce(r.used, 0) as quota_used,
+  coalesce(agg.used, 0) as quota_used,
   case when s.quota_total is null then null
-       else s.quota_total - coalesce(r.used, 0) end as quota_remaining,
-  r.last_redeemed_at,
+       else s.quota_total - coalesce(agg.used, 0) end as quota_remaining,
+  agg.last_redeemed_at,
   (s.status = 'active'
     and now() between s.starts_at and s.ends_at
-    and (s.quota_total is null or coalesce(r.used, 0) < s.quota_total)
+    and (s.quota_total is null or coalesce(agg.used, 0) < s.quota_total)
   ) as is_redeemable
 from subscriptions s
 left join lateral (
-  select sum(r.qty) as used, max(r.created_at) as last_redeemed_at
-    from redemptions r
-   where r.subscription_id = s.id
-     and r.status = 'completed'
+  select sum(red.qty) as used, max(red.created_at) as last_redeemed_at
+    from redemptions red
+   where red.subscription_id = s.id
+     and red.status = 'completed'
      and not exists (
        select 1 from redemptions v
-        where v.voids_redemption_id = r.id
+        where v.voids_redemption_id = red.id
           and v.status = 'voided'
      )
-) r on true;
+) agg on true;
 
 
 -- ---------------------------------------------------------------------------
