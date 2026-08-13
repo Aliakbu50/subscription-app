@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getStaffContext } from "@/lib/pos/session";
 import { createServerClient } from "@/lib/supabase/server";
 import { businessDay } from "@/lib/time/riyadh";
+import { activeRedemptions } from "@/lib/pos/day";
 import { DEFAULT_LOCALE } from "@/lib/i18n/strings";
 import { posStrings } from "@/lib/i18n/pos";
 
@@ -30,13 +31,19 @@ export default async function PosHome() {
   const supabase = await createServerClient();
   const today = businessDay(new Date());
 
-  // RLS scopes this to the cashier's own merchant. No merchant filter needed
-  // here, and adding one would give a false sense of where the boundary lives.
-  const { count } = await supabase
+  // Fetches the rows rather than asking the database for a count, because a
+  // count of `status = 'completed'` is WRONG: voiding does not change the row
+  // it cancels, it adds one. activeRedemptions() subtracts the voided ones,
+  // and is the same function /pos/history uses so the two cannot disagree.
+  //
+  // RLS scopes this to the cashier's own merchant. No merchant filter here,
+  // and adding one would give a false sense of where the boundary lives.
+  const { data } = await supabase
     .from("redemptions")
-    .select("id", { count: "exact", head: true })
-    .eq("business_day", today)
-    .eq("status", "completed");
+    .select("id, status, voids_redemption_id")
+    .eq("business_day", today);
+
+  const count = activeRedemptions(data ?? []).length;
 
   return (
     <main className="flex flex-1 flex-col p-4">
@@ -46,7 +53,7 @@ export default async function PosHome() {
         <span className="tag relative top-px z-10">{t.redemptionsToday}</span>
       </div>
       <div className="cell flex items-center justify-center py-7">
-        <span className="display text-7xl tabular-nums">{count ?? 0}</span>
+        <span className="display text-7xl tabular-nums">{count}</span>
       </div>
 
       {/* The most important control in the product. Deliberately enormous —

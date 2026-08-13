@@ -1,6 +1,7 @@
 import { getStaffContext } from "@/lib/pos/session";
 import { createServerClient } from "@/lib/supabase/server";
 import { businessDay } from "@/lib/time/riyadh";
+import { voidedRedemptionIds } from "@/lib/pos/day";
 import { DEFAULT_LOCALE } from "@/lib/i18n/strings";
 import { posStrings } from "@/lib/i18n/pos";
 import { HistoryList, type HistoryRow } from "@/components/pos/HistoryList";
@@ -42,9 +43,8 @@ export default async function HistoryPage() {
 
   // Which completed rows have since been voided? Derived from the voiding
   // rows, because the original can never be marked — that is the point.
-  const voidedIds = new Set(
-    all.filter((r) => r.voids_redemption_id).map((r) => r.voids_redemption_id),
-  );
+  // Shared with /pos so the count there and this list cannot disagree.
+  const voidedIds = voidedRedemptionIds(all);
 
   const rows: HistoryRow[] = all
     .filter((r) => r.status === "completed")
