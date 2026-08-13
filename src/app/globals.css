@@ -1,49 +1,57 @@
 @import "tailwindcss";
 
 /* ---------------------------------------------------------------------------
-   "Paper" — the palette for every surface.
-   Off-white ground, deep green, generous air. Chosen for a pilot where ten
-   cafés means ten people who have never been trained on the app, reading it in
-   daylight with someone waiting.
+   Palette and structure taken from the Bennett reference: flat colour blocks
+   meeting at hard edges, everything framed in thin strokes, navy type on
+   dusty pink.
 
-   Everything is a named token. Change a value here and every screen follows;
-   no screen should ever hard-code a hex or a Tailwind palette colour.
+   Two things carried over deliberately:
+     - NO rounded corners anywhere. The reference is entirely square, and the
+       moment one radius creeps back in the whole thing looks like a different
+       design with a pink background.
+     - Information lives in outlined CELLS that butt against each other, like
+       a product label. On a POS this earns its keep: the member's name, their
+       remaining cups and their plan each get their own box, which is far
+       easier to read at arm's length than a paragraph of mixed text.
+
+   Everything is a named token. No screen hard-codes a hex.
    --------------------------------------------------------------------------- */
 @theme {
-  /* Surfaces */
-  --color-ground: #fbfbf9;   /* page background */
-  --color-surface: #ffffff;  /* header bar, raised cards */
-  --color-rule: #dcdedb;     /* borders and dividers */
+  /* Surfaces — flat blocks, not layers. */
+  --color-ground: #f6d2ce;   /* dusty pink, the main panel */
+  --color-surface: #fbe9e7;  /* the lighter pink for raised cells */
+  --color-paper: #ffffff;    /* input fields and the member card */
 
-  /* Text */
-  --color-ink: #14161a;      /* primary */
-  --color-muted: #6b7280;    /* labels, secondary */
+  /* Ink. The navy does all the work: type, strokes, and the primary button. */
+  --color-ink: #2b3268;
+  --color-muted: #6a6f96;    /* navy desaturated, not a neutral grey */
+  --color-rule: #2b3268;     /* strokes are full-strength navy, 1px */
 
-  /* Brand — the confirm button, the selected item, the success screen */
-  --color-brand: #14614a;
-  --color-brand-strong: #0f4a38;  /* pressed */
+  --color-brand: #2b3268;        /* the solid CTA, like ADD TO CART */
+  --color-brand-strong: #1d2249; /* pressed */
 
-  /* State. These are SIGNALS, not decoration:
-       danger  a refusal a barista reads at arm's length
-       warn    saved locally, server has not confirmed it
-       ok      the server has it
-     Never reuse them for anything else, or they stop meaning anything. */
-  --color-danger: #a51f1f;
-  --color-warn: #b45309;
-  --color-ok: #14614a;
+  /* State. Still signals rather than decoration, but drawn from the
+     reference's own secondary blocks so they belong to the same world:
+       ok      teal        the server has it
+       warn    coral       saved locally, not yet confirmed
+       danger  plum        a refusal, read at arm's length
+     Never reuse these for anything else or they stop meaning anything. */
+  --color-ok: #1f6b67;
+  --color-warn: #e0805c;
+  --color-danger: #7a3350;
 
-  /* System stack. Arabic faces come from the OS — SF Arabic on iOS, Noto
-     elsewhere — so nothing downloads over café wifi. */
+  /* System stack. Arabic faces come from the OS, so nothing downloads over
+     café wifi — which is also why the reference's display face cannot be
+     matched for Arabic. Weight and tracking carry it instead. */
   --font-sans:
     -apple-system, BlinkMacSystemFont, "SF Arabic", "Segoe UI",
     "Noto Naskh Arabic", "Noto Sans Arabic", Tahoma, Arial, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
 }
 
-/* The POS deliberately does NOT follow the device's dark mode.
-   Ten cafés, ten devices, mixed settings: a screen that looks different on
-   every phone makes support impossible and training worse. "Tap the green
-   button at the bottom" has to be true everywhere. */
+/* The POS deliberately does NOT follow the device's dark mode. Ten cafés with
+   mixed settings makes support impossible if the screen looks different on
+   every phone — "tap the navy button at the bottom" has to be true everywhere. */
 :root {
   color-scheme: light;
 }
@@ -54,15 +62,41 @@ body {
   font-family: var(--font-sans);
 }
 
-/* Visible keyboard focus. Rare on a phone, essential on the shop tablet with
-   a keyboard attached, and free to support. */
+/* ---------------------------------------------------------------------------
+   The box grid. A single class so cells stay consistent across screens, and
+   so the stroke weight can be changed in one place.
+   --------------------------------------------------------------------------- */
+.cell {
+  border: 1px solid var(--color-ink);
+  background: var(--color-surface);
+}
+
+/* A label that sits on top of the cell below it, like the BLACK TEA tag in
+   the reference — overlapping the box it describes rather than floating. */
+.tag {
+  border: 1px solid var(--color-ink);
+  background: var(--color-ground);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  padding: 6px 14px;
+}
+
+/* Display treatment for the two things read at a glance: the member's name
+   and the day's count. Tight tracking and full weight stand in for the
+   condensed face the reference uses. */
+.display {
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 0.95;
+}
+
 :focus-visible {
-  outline: 2px solid var(--color-brand);
+  outline: 2px solid var(--color-ink);
   outline-offset: 2px;
 }
 
-/* Stop iOS zooming the page when a cashier taps an input. The default
-   16px threshold is why POS screens jump around on iPhones. */
+/* Stop iOS zooming the page when a cashier taps a field. */
 input,
 button,
 select,

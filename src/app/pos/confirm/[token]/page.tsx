@@ -113,7 +113,7 @@ export default function ConfirmPage({
         <p className="text-center text-lg">{t.sessionExpired}</p>
         <button
           onClick={() => router.push("/pos")}
-          className="rounded-2xl border border-rule px-6 py-4 text-lg"
+          className="border border-rule px-6 py-4 text-lg"
         >
           {t.back}
         </button>
@@ -146,22 +146,22 @@ export default function ConfirmPage({
   // ---- Not eligible ------------------------------------------------------
   if (!subscription.eligible) {
     return (
-      <main className="flex flex-1 flex-col gap-6 p-6">
-        <div className="text-center">
-          <div className="text-4xl font-bold">{handoff.member.firstName}</div>
-          <div className="mt-1 text-sm text-muted">{subscription.planName}</div>
-        </div>
+      <main className="flex flex-1 flex-col p-4">
+        <MemberCard
+          firstName={handoff.member.firstName}
+          planName={subscription.planName}
+        />
 
-        {/* Large, red, plain language. Never a code. */}
-        <div className="flex flex-1 items-center justify-center rounded-3xl bg-danger p-6 text-center">
-          <p className="text-2xl font-semibold text-white">
+        {/* Plain language, at size, in its own block. Never a code. */}
+        <div className="mt-4 flex flex-1 items-center justify-center border border-ink bg-danger p-6 text-center">
+          <p className="text-2xl font-semibold leading-relaxed text-white">
             {subscription.reason?.[DEFAULT_LOCALE]}
           </p>
         </div>
 
         <button
           onClick={() => router.push("/pos")}
-          className="rounded-2xl border border-rule py-4 text-lg"
+          className="cell mt-4 py-4 text-lg"
         >
           {t.back}
         </button>
@@ -171,29 +171,40 @@ export default function ConfirmPage({
 
   // ---- Eligible ----------------------------------------------------------
   return (
-    <main className="flex flex-1 flex-col gap-5 p-6">
-      <div className="text-center">
-        <div className="text-4xl font-bold">{handoff.member.firstName}</div>
-        <div className="mt-1 text-sm text-muted">{subscription.planName}</div>
-        <div className="mt-2 text-xl">
+    <main className="flex flex-1 flex-col p-4">
+      <MemberCard
+        firstName={handoff.member.firstName}
+        planName={subscription.planName}
+      />
+
+      {/* Remaining quota as its own spec cell, sharing an edge with the card
+          above it. -mt-px collapses the doubled stroke into one line. */}
+      <div className="cell -mt-px flex items-baseline justify-between px-4 py-3">
+        <span className="text-xs uppercase tracking-widest text-muted">
+          {t.remaining}
+        </span>
+        <span className="display text-3xl tabular-nums">
           {subscription.quotaRemaining === null
             ? t.unlimited
             : t.cupsLeft(subscription.quotaRemaining)}
-        </div>
+        </span>
       </div>
 
       {items.length > 1 && (
-        <div className="space-y-2">
-          <div className="text-sm text-muted">{t.chooseItem}</div>
-          <div className="grid grid-cols-2 gap-3">
+        <div className="mt-4">
+          <div className="flex justify-center">
+            <span className="tag relative top-px z-10">{t.chooseItem}</span>
+          </div>
+          {/* One grid with shared edges, not a row of separate buttons. */}
+          <div className="grid grid-cols-2">
             {items.map((item) => (
               <button
                 key={item}
                 onClick={() => setPickedItem(item)}
-                className={`rounded-2xl border py-4 text-lg ${
+                className={`-mb-px -ms-px border border-ink py-5 text-lg ${
                   chosenItem === item
-                    ? "border-brand bg-brand text-white"
-                    : "border-rule"
+                    ? "bg-brand font-semibold text-white"
+                    : "bg-surface"
                 }`}
               >
                 {itemLabel(item, DEFAULT_LOCALE)}
@@ -204,7 +215,7 @@ export default function ConfirmPage({
       )}
 
       {error && (
-        <p role="alert" className="text-center text-danger">
+        <p role="alert" className="mt-4 text-center text-danger">
           {error}
         </p>
       )}
@@ -212,10 +223,36 @@ export default function ConfirmPage({
       <button
         onClick={confirm}
         disabled={busy || (items.length > 0 && !chosenItem)}
-        className="flex flex-1 items-center justify-center rounded-3xl bg-brand text-3xl font-bold text-white disabled:opacity-40"
+        className="mt-4 flex flex-1 items-center justify-center border border-ink bg-brand text-3xl font-bold text-white disabled:opacity-40"
       >
         {busy ? t.confirming : t.confirm}
       </button>
     </main>
+  );
+}
+
+/**
+ * The member's name and plan, drawn the way the reference draws a product:
+ * a small tag sitting on top of the box it labels, name at full size inside.
+ *
+ * The name is the largest thing on the screen because saying it aloud is how
+ * a cashier confirms they have the right person.
+ */
+function MemberCard({
+  firstName,
+  planName,
+}: {
+  firstName: string;
+  planName: string;
+}) {
+  return (
+    <>
+      <div className="flex justify-center">
+        <span className="tag relative top-px z-10">{planName}</span>
+      </div>
+      <div className="cell flex items-center justify-center bg-paper px-4 py-8">
+        <span className="display text-5xl">{firstName}</span>
+      </div>
+    </>
   );
 }

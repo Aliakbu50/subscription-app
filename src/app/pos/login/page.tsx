@@ -75,7 +75,7 @@ export default function LoginPage() {
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full rounded-2xl border border-rule bg-surface px-4 py-3 text-lg"
+            className="w-full border border-ink bg-paper px-4 py-3 text-lg"
           />
         </div>
 
@@ -91,7 +91,7 @@ export default function LoginPage() {
             required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full rounded-2xl border border-rule bg-surface px-4 py-3 text-lg"
+            className="w-full border border-ink bg-paper px-4 py-3 text-lg"
           />
         </div>
 
@@ -114,7 +114,7 @@ export default function LoginPage() {
         <button
           type="submit"
           disabled={busy}
-          className="w-full rounded-2xl bg-brand px-4 py-4 text-lg font-semibold text-white disabled:opacity-60"
+          className="w-full border border-ink bg-brand px-4 py-4 text-lg font-semibold text-white disabled:opacity-60"
         >
           {busy ? t.signingIn : t.signIn}
         </button>

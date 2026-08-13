@@ -90,7 +90,7 @@ export function HistoryList({ rows }: { rows: HistoryRow[] }) {
       {queued.map((item) => (
         <div
           key={item.id}
-          className={`rounded-2xl border p-4 ${
+          className={`border p-4 ${
             item.status === "rejected"
               ? "border-danger bg-danger/10"
               : "border-warn bg-warn/10"
@@ -124,9 +124,9 @@ export function HistoryList({ rows }: { rows: HistoryRow[] }) {
         return (
           <div
             key={row.id}
-            className={`rounded-2xl border border-rule p-4 ${
-              row.voided ? "opacity-50" : ""
-            }`}
+            /* -mt-px so consecutive rows share one stroke and the list reads
+               as a single ruled table rather than a stack of cards. */
+            className={`cell -mt-px p-4 ${row.voided ? "opacity-50" : ""}`}
           >
             <div className="flex items-baseline justify-between">
               <span className="text-lg">
@@ -147,7 +147,7 @@ export function HistoryList({ rows }: { rows: HistoryRow[] }) {
                 <button
                   onClick={() => voidRedemption(row.id)}
                   disabled={voidingId === row.id}
-                  className="rounded-lg border border-danger px-4 py-2 text-sm text-danger disabled:opacity-40"
+                  className="border border-danger px-4 py-2 text-sm text-danger disabled:opacity-40"
                 >
                   {voidingId === row.id ? t.voiding : t.voidAction}
                 </button>

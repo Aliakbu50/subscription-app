@@ -162,7 +162,7 @@ export default function ScanPage() {
         </p>
         <Link
           href="/pos/lookup"
-          className="rounded-2xl bg-brand px-6 py-4 text-lg font-semibold text-white"
+          className="bg-brand px-6 py-4 text-lg font-semibold text-white"
         >
           {t.lookupByPhone}
         </Link>
@@ -185,7 +185,7 @@ export default function ScanPage() {
       {/* An aiming frame. Purely visual, but it is what stops people pressing
           the phone flat against the customer's screen. */}
       <div className="pointer-events-none relative flex flex-1 items-center justify-center">
-        <div className="h-56 w-56 rounded-3xl border-4 border-white/80" />
+        <div className="h-56 w-56 border-4 border-white/80" />
       </div>
 
       <div className="relative bg-black/60 p-4 text-center text-white">

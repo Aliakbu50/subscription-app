@@ -39,33 +39,36 @@ export default async function PosHome() {
     .eq("status", "completed");
 
   return (
-    <main className="flex flex-1 flex-col gap-5 p-5">
-      <div className="pt-2 text-center">
-        <div className="text-6xl font-bold tabular-nums leading-none">{count ?? 0}</div>
-        <div className="mt-2 text-xs uppercase tracking-widest text-muted">
-          {t.redemptionsToday}
-        </div>
+    <main className="flex flex-1 flex-col p-4">
+      {/* The day's count as a spec cell — a label sitting on the box it
+          describes, the way BLACK TEA sits on the product title. */}
+      <div className="flex justify-center">
+        <span className="tag relative top-px z-10">{t.redemptionsToday}</span>
+      </div>
+      <div className="cell flex items-center justify-center py-7">
+        <span className="display text-7xl tabular-nums">{count ?? 0}</span>
       </div>
 
       {/* The most important control in the product. Deliberately enormous —
-          it should be findable by thumb without looking. */}
+          findable by thumb without looking. Solid navy, like ADD TO CART. */}
       <Link
         href="/pos/scan"
-        className="flex flex-1 items-center justify-center rounded-3xl bg-brand text-3xl font-bold text-white active:bg-brand-strong"
+        className="mt-4 flex flex-1 items-center justify-center border border-ink bg-brand text-3xl font-bold text-white active:bg-brand-strong"
       >
         {t.scan}
       </Link>
 
+      {/* Butted against each other with a shared edge — one grid, not two
+          floating buttons. -mt-px collapses the doubled stroke. */}
       <Link
         href="/pos/lookup"
-        className="rounded-2xl border border-rule bg-surface px-4 py-4 text-center text-lg"
+        className="cell mt-4 px-4 py-5 text-center text-lg"
       >
         {t.lookupByPhone}
       </Link>
-
       <Link
         href="/pos/history"
-        className="rounded-2xl px-4 py-3 text-center text-muted"
+        className="cell -mt-px px-4 py-4 text-center text-muted"
       >
         {t.history}
       </Link>
