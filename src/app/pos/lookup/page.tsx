@@ -98,7 +98,7 @@ export default function LookupPage() {
       {/* One ruled block rather than twelve separate buttons: the negative
           margins collapse adjacent strokes into a single shared line, the way
           the reference's spec table is drawn. */}
-      <div className="mt-4 grid grid-cols-3">
+      <div dir="ltr" className="mt-4 grid grid-cols-3">
         {KEYS.map((key) => {
           if (key === "clear") {
             return (

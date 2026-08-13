@@ -178,16 +178,22 @@ export default function ConfirmPage({
       />
 
       {/* Remaining quota as its own spec cell, sharing an edge with the card
-          above it. -mt-px collapses the doubled stroke into one line. */}
-      <div className="cell -mt-px flex items-baseline justify-between px-4 py-3">
-        <span className="text-xs uppercase tracking-widest text-muted">
-          {t.remaining}
-        </span>
-        <span className="display text-3xl tabular-nums">
-          {subscription.quotaRemaining === null
-            ? t.unlimited
-            : t.cupsLeft(subscription.quotaRemaining)}
-        </span>
+          above it. -mt-px collapses the doubled stroke into one line.
+
+          Number and unit are separate elements: putting the whole sentence in
+          one string collided with its own label and wrapped at 300px. The
+          figure is what gets read, so it carries the weight. */}
+      <div className="cell -mt-px flex items-baseline justify-center gap-2 px-4 py-4">
+        {subscription.quotaRemaining === null ? (
+          <span className="display text-3xl">{t.unlimited}</span>
+        ) : (
+          <>
+            <span className="display text-4xl tabular-nums">
+              {subscription.quotaRemaining}
+            </span>
+            <span className="text-sm text-muted">{t.cupsUnit}</span>
+          </>
+        )}
       </div>
 
       {items.length > 1 && (
